@@ -109,9 +109,9 @@ export default function Sidebar() {
         )}
 
         <Link
-          href="/parts"
+          href="/Parts/partlist"
           className={`${styles.menuItem} ${
-            checkActive("/parts") ? styles.active : ""
+            checkActive("/Parts/partlist") ? styles.active : ""
           }`}
         >
           <Cpu size={18} />
@@ -119,9 +119,9 @@ export default function Sidebar() {
         </Link>
 
         <Link
-          href="/parts/explain"
+          href="/Parts/partexplaincategory"
           className={`${styles.menuItem} ${
-            checkActive("/parts/explain")
+            checkActive("/Parts/partexplaincategory")
               ? styles.active
               : ""
           }`}
