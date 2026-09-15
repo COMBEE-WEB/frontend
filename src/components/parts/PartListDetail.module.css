@@ -1,0 +1,365 @@
+.page {
+    min-height: 100vh;
+    padding: 48px 40px;
+    background: #f5f5f7;
+    color: #171717;
+}
+
+.header {
+    margin-bottom: 18px;
+}
+
+.title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.description {
+    margin: 5px 0 0;
+    color: #555;
+}
+
+.breadcrumb {
+    margin-bottom: 20px;
+    color: #777;
+    font-size: 12px;
+}
+
+.breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.filter,
+.activeFilter {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 18px;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    color: #333;
+    text-decoration: none;
+}
+
+.activeFilter {
+    border-color: #ffab00;
+    background: #ffab00;
+    font-weight: 700;
+}
+
+.filter:focus-visible,
+.activeFilter:focus-visible,
+.breadcrumb a:focus-visible {
+    outline: 2px solid #b92535;
+    outline-offset: 3px;
+}
+
+.productSection {
+    max-width: 960px;
+}
+
+.sectionTitle {
+    margin: 0 0 14px;
+    font-size: 20px;
+}
+
+.productList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.productCard {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 18px;
+    padding: 22px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.productIcon {
+    width: 44px;
+    height: 44px;
+    color: #ffab00;
+}
+
+.productCategory {
+    color: #777;
+    font-size: 12px;
+}
+
+.productName {
+    margin: 4px 0 8px;
+    font-size: 18px;
+}
+
+.productDescription {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+    .page {
+        padding: 28px 20px;
+    }
+
+    .productList {
+        grid-template-columns: 1fr;
+    }
+}
+
+.searchBox {
+    display: block;
+    width: min(300px, 100%);
+    margin-bottom: 14px;
+}
+
+.searchInput {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #d8d8d8;
+    background-color: #fff;
+    color: #171717;
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    background-color: #fff;
+}
+
+.productTable {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    color: #171717;
+}
+
+.productTable th,
+.productTable td {
+    padding: 14px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.productTable th {
+    color: #777;
+    font-size: 13px;
+}
+
+.productTable tbody tr {
+    cursor: pointer;
+}
+
+.productTable tbody tr:hover {
+    background-color: #fff7e8;
+}
+
+.empty {
+    margin: 0;
+    padding: 32px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.modalBackdrop {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background-color: rgb(0 0 0 / 60%);
+}
+
+.modal {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: min(760px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #171717;
+    box-shadow: 0 20px 60px rgb(0 0 0 / 25%);
+}
+
+.closeButton {
+    position: absolute;
+    z-index: 1;
+    top: 8px;
+    right: 8px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: #171717;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.closeButton:focus-visible {
+    outline: 2px solid #b92535;
+    outline-offset: 2px;
+}
+
+.productDetail {
+    min-width: 0;
+    padding: 32px;
+    border-right: 1px solid #ddd;
+}
+
+.productImage {
+    display: grid;
+    place-items: center;
+    min-height: 260px;
+    margin-bottom: 24px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    color: #777;
+}
+
+.productDetail h2 {
+    margin: 0 0 18px;
+    padding-right: 30px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.specification {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    margin: 0;
+}
+
+.specification dt {
+    font-weight: 700;
+}
+
+.specification dd {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.comments {
+    display: flex;
+    min-width: 0;
+    min-height: 520px;
+    flex-direction: column;
+    padding: 32px;
+}
+
+.commentsTitle {
+    margin: 0 0 18px;
+    padding-right: 30px;
+    font-size: 18px;
+}
+
+.commentList {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.comment {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.comment + .comment {
+    margin-top: 8px;
+}
+
+.comment strong {
+    font-size: 13px;
+}
+
+.comment p {
+    margin: 6px 0 0;
+    overflow-wrap: anywhere;
+}
+
+.commentForm {
+    display: flex;
+    margin-top: 16px;
+}
+
+.commentForm input {
+    min-width: 0;
+    min-height: 44px;
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    color: #171717;
+}
+
+.commentForm button {
+    min-width: 60px;
+    min-height: 44px;
+    border: 1px solid #ffab00;
+    background: #ffab00;
+    color: #171717;
+    cursor: pointer;
+}
+
+.commentForm input:focus-visible,
+.commentForm button:focus-visible {
+    outline: 2px solid #b92535;
+    outline-offset: 2px;
+}
+
+@media (max-width: 500px) {
+    .modalBackdrop {
+        padding: 12px;
+    }
+
+    .modal {
+        grid-template-columns: 1fr;
+        max-height: calc(100vh - 24px);
+    }
+
+    .productDetail {
+        padding: 24px;
+        border-right: 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .productImage {
+        min-height: 200px;
+    }
+
+    .comments {
+        min-height: 360px;
+        padding: 24px;
+    }
+}

@@ -30,6 +30,7 @@ function CategoryItem({ category })
                     strokeWidth={0}
                     aria-hidden="true"
                 />
+
                 <span className={styles.categoryName}>
                     {category.name}
                 </span>

@@ -1,0 +1,33 @@
+.categoryList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.categoryLink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 88px;
+    min-height: 100px;
+    color: #171717;
+    text-decoration: none;
+}
+
+.categoryLink:hover {
+    background-color: #e9e9ee;
+}
+
+.categoryLink:focus-visible {
+    outline: 2px solid #b92535;
+    outline-offset: 3px;
+}
+
+.folderIcon {
+    width: 88px;
+    height: 72px;
+    color: #ffab00;
+}
