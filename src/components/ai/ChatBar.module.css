@@ -1,0 +1,76 @@
+.chatBar {
+  width: 100%;
+  max-width: 540px;
+  height: 52px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid #ffb322;
+  border-radius: 999px;
+  background-color: white;
+}
+
+.chatBar:focus-within {
+  border-color: #ffab00;
+  box-shadow: 0 0 0 3px rgba(255, 171, 0, 0.1);
+}
+
+.addButton,
+.sendButton {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+}
+
+.addButton {
+  width: 34px;
+  height: 34px;
+  background-color: transparent;
+  color: #ffab00;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  color: #333;
+  font-size: 14px;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #888;
+}
+
+.sendButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #ffab00;
+  color: white;
+}
+
+.sendButton:hover {
+  background-color: #ec9e00;
+}
+
+.sendButton:disabled {
+  background-color: #ffe6ae;
+  cursor: default;
+}
+
+@media (max-width: 600px) {
+  .chatBar {
+    height: 48px;
+  }
+
+  .input {
+    font-size: 13px;
+  }
+}

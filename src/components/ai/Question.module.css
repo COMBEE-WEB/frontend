@@ -1,0 +1,67 @@
+.questionRow {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.aiProfile {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #ffab00;
+  color: white;
+}
+
+.questionContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.aiName {
+  color: #555;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.questionBox {
+  padding: 15px;
+  border: 1px solid #e4e4e4;
+  border-radius: 4px 16px 16px 16px;
+  background-color: white;
+}
+
+.questionBox p {
+  margin: 0 0 13px;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.answerList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.answerButton {
+  padding: 8px 14px;
+  border: 1px solid #ffab00;
+  border-radius: 999px;
+  background-color: white;
+  color: #e99d00;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.answerButton:hover {
+  background-color: #ffab00;
+  color: white;
+}
