@@ -1,0 +1,74 @@
+.chatContainer {
+  position: relative;
+  flex: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f7f9;
+  overflow: hidden;
+}
+
+.startScreen {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.startScreen h1 {
+  margin: 0 0 25px;
+  color: #969696;
+  font-size: 25px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.messageArea {
+  flex: 1;
+  padding: 45px 30px 125px;
+  overflow-y: auto;
+}
+
+.messageList {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bottomBar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 20px 30px 25px;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(
+    to top,
+    #f7f7f9 70%,
+    rgba(247, 247, 249, 0)
+  );
+}
+
+@media (max-width: 700px) {
+  .startScreen {
+    padding: 20px;
+  }
+
+  .startScreen h1 {
+    font-size: 20px;
+  }
+
+  .messageArea {
+    padding: 30px 18px 110px;
+  }
+
+  .bottomBar {
+    padding: 15px 18px 20px;
+  }
+}
