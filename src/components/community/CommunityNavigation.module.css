@@ -1,0 +1,41 @@
+.navigation {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.link,
+.active {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid #dedede;
+    border-radius: 999px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.link {
+    background: #fff;
+}
+
+.link:hover {
+    border-color: #ffab00;
+    color: #bb7d00;
+}
+
+.active {
+    border-color: #ffab00;
+    background: #ffab00;
+    color: #171717;
+}
+
+.link:focus-visible,
+.active:focus-visible {
+    outline: 3px solid #b92535;
+    outline-offset: 2px;
+}
