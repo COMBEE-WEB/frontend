@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CircleUserRound, Send, X } from "lucide-react";
+import CommunityNavigation from "./CommunityNavigation";
 import styles from "./EstimateCommunityBoard.module.css";
 
 const initialPosts = [
@@ -17,6 +18,7 @@ const initialPosts = [
             {
                 id: 1,
                 author: "김우진",
+                account: "@MooWoon",
                 content: "좋은거 같아요!",
             },
         ],
@@ -115,6 +117,7 @@ export default function EstimateCommunityBoard()
                             {
                                 id: Date.now(),
                                 author: "김우진",
+                                account: "@MooWoon",
                                 content: trimmedComment,
                             },
                         ],
@@ -128,6 +131,8 @@ export default function EstimateCommunityBoard()
     return (
         <main className={styles.page}>
             <div className={styles.container}>
+                <CommunityNavigation activeBoard="estimate" />
+
                 <header className={styles.header}>
                     <p className={styles.eyebrow}>ESTIMATE COMMUNITY</p>
                     <h1>견적을 공유해보세요!</h1>
@@ -257,7 +262,10 @@ export default function EstimateCommunityBoard()
                                     {
                                         return (
                                             <li key={comment.id} className={styles.comment}>
-                                                <strong>{comment.author}</strong>
+                                                <div className={styles.commentAuthor}>
+                                                    <strong>{comment.author}</strong>
+                                                    <span>{comment.account}</span>
+                                                </div>
                                                 <p>{comment.content}</p>
                                             </li>
                                         );

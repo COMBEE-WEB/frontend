@@ -337,6 +337,17 @@
     line-height: 1.55;
 }
 
+.commentAuthor {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+}
+
+.commentAuthor span {
+    color: #999;
+    font-size: 11px;
+}
+
 .emptyComment {
     padding: 28px 16px;
     color: #999;
