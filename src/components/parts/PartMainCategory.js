@@ -1,16 +1,8 @@
 import Link from "next/link";
 import { Folder } from "lucide-react";
 import styles from "./PartMainCategory.module.css";
+import { partCategories } from "@/lib/parts";
 
-const categories = [
-    { id: "cpu", name: "CPU" },
-    { id: "gpu", name: "GPU" },
-    { id: "memory", name: "메모리" },
-    { id: "storage", name: "SSD / HDD" },
-    { id: "mainboard", name: "메인보드" },
-    { id: "power", name: "파워" },
-    { id: "case", name: "PC케이스" },
-];
 
 //-------------------
 // 부품 종류별 목록 페이지 링크 표시
@@ -46,7 +38,7 @@ export default function PartMainCategory()
 {
     return (
         <ul className={styles.categoryList} aria-label="부품 종류">
-            {categories.map(
+            {partCategories.map(
                 (category) =>
                 {
                     return (

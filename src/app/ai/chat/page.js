@@ -1,18 +1,5 @@
-import Sidebar from "@/components/common/Sidebar";
-import ChatLog from "@/components/ai/ChatLog";
-
-export default function AiChatPage() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        width: "100%",
-        height: "100vh",
-        overflow: "hidden",
-      }}
-    >
-      <Sidebar />
-      <ChatLog />
-    </div>
-  );
+import ChatLog from '@/components/ai/ChatLog';
+export default async function AiChatPage({ searchParams }) {
+ const params = await searchParams;
+ return <ChatLog guidedSeed={params.guided === '1'}/>;
 }

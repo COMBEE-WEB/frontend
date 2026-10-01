@@ -147,8 +147,7 @@
 
   .logo span,
   .menuItem span,
-  .logoutButton span,
-  .subMenu {
+  .logoutButton span {
     display: none;
   }
 
@@ -161,4 +160,18 @@
   .arrow {
     display: none;
   }
+  .subMenu {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .subMenuItem {
+    padding: 5px 2px;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .subMenuItem svg { display: none; }
 }

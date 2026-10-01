@@ -4,9 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 import styles from "./ChangePassword.module.css";
+import Link from "next/link";
+import { authRequest } from "@/lib/auth";
 
 export default function ChangePassword() {
   const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -23,14 +28,16 @@ export default function ChangePassword() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (pending) return;
+    setError("");
 
     if (
       passwordData.newPassword !==
       passwordData.newPasswordConfirm
     ) {
-      alert("새 비밀번호가 서로 일치하지 않습니다.");
+      setError("새 비밀번호가 서로 일치하지 않습니다.");
       return;
     }
 
@@ -38,16 +45,18 @@ export default function ChangePassword() {
       passwordData.currentPassword ===
       passwordData.newPassword
     ) {
-      alert("현재 비밀번호와 다른 비밀번호를 입력해주세요.");
+      setError("현재 비밀번호와 다른 비밀번호를 입력해주세요.");
       return;
     }
 
-    console.log("비밀번호 변경 정보:", passwordData);
-
-    // 나중에 백엔드 비밀번호 변경 API 연결
-    alert("비밀번호가 변경되었습니다.");
-
-    router.push("/auth");
+    setPending(true);
+    try {
+      await authRequest("change-password", { currentPassword: passwordData.currentPassword, newPassword: passwordData.newPassword });
+      setPasswordData({ currentPassword: "", newPassword: "", newPasswordConfirm: "" });
+      setDone(true);
+      router.refresh();
+    } catch (error) { setError(error.message); }
+    finally { setPending(false); }
   };
 
   return (
@@ -65,6 +74,7 @@ export default function ChangePassword() {
           </p>
         </div>
 
+        {done ? <div role="status"><p>비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.</p><Link href="/auth">로그인하기</Link></div> : <>
         <PasswordInput
           name="currentPassword"
           placeholder="현재 비밀번호를 입력해주세요"
@@ -86,9 +96,12 @@ export default function ChangePassword() {
           onChange={handleChange}
         />
 
-        <button className={styles.changeButton} type="submit">
-          비밀번호 변경
+        {error && <p role="alert">{error}</p>}
+        <button className={styles.changeButton} type="submit" disabled={pending}>
+          {pending ? "변경 중…" : "비밀번호 변경"}
         </button>
+        <Link href="/auth/find-password">현재 비밀번호를 잊었나요?</Link>
+        </>}
       </form>
     </main>
   );
@@ -109,6 +122,9 @@ function PasswordInput({
       <input
         name={name}
         type="password"
+        minLength={name === "currentPassword" ? 1 : 8}
+        maxLength={128}
+        autoComplete={name === "currentPassword" ? "current-password" : "new-password"}
         placeholder={placeholder}
         value={value}
         onChange={onChange}

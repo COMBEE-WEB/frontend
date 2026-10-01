@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { authRequest } from "@/lib/auth";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -20,17 +21,42 @@ import {
 
 import styles from "./Sidebar.module.css";
 
-export default function Sidebar() {
+export default function Sidebar({ onAccount } = {}) {
   const pathname = usePathname();
   const router = useRouter();
+  const [account, setAccount] = useState(null);
+  const [authError, setAuthError] = useState("");
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    authRequest("me").then((data) => {
+      if (active) { setAccount(data); onAccount?.(data); }
+    }).catch((error) => {
+      if (active && error.status !== 401) setAuthError(error.message);
+    });
+    return () => { active = false; };
+  }, [onAccount]);
 
   const [isAiOpen, setIsAiOpen] = useState(
     pathname.startsWith("/ai"),
   );
+  const [isCommunityOpen, setIsCommunityOpen] = useState(pathname.startsWith('/community'));
 
-  const handleLogout = () => {
-    alert("로그아웃되었습니다.");
-    router.push("/auth");
+  const handleLogout = async () => {
+    if (pending) return;
+    setPending(true);
+    setAuthError("");
+    try {
+      await authRequest("logout");
+      setAccount(null);
+      router.push("/auth");
+      router.refresh();
+    } catch (error) {
+      setAuthError(error.message);
+    } finally {
+      setPending(false);
+    }
   };
 
   const checkActive = (href) => {
@@ -109,9 +135,9 @@ export default function Sidebar() {
         )}
 
         <Link
-          href="/parts"
+          href="/Parts/partlist"
           className={`${styles.menuItem} ${
-            checkActive("/parts") ? styles.active : ""
+            checkActive("/Parts/partlist") ? styles.active : ""
           }`}
         >
           <Cpu size={18} />
@@ -119,9 +145,9 @@ export default function Sidebar() {
         </Link>
 
         <Link
-          href="/parts/explain"
+          href="/Parts/partexplaincategory"
           className={`${styles.menuItem} ${
-            checkActive("/parts/explain")
+            checkActive("/Parts/partexplaincategory")
               ? styles.active
               : ""
           }`}
@@ -130,8 +156,10 @@ export default function Sidebar() {
           <span>부품 설명</span>
         </Link>
 
-        <Link
-          href="/community"
+        <button
+          type="button"
+          aria-expanded={isCommunityOpen}
+          onClick={() => setIsCommunityOpen(value => !value)}
           className={`${styles.menuItem} ${
             checkActive("/community")
               ? styles.active
@@ -140,12 +168,17 @@ export default function Sidebar() {
         >
           <UsersRound size={18} />
           <span>커뮤니티</span>
-        </Link>
+          <span className={styles.arrow}>{isCommunityOpen ? <ChevronDown size={15}/> : <ChevronRight size={15}/>}</span>
+        </button>
+        {isCommunityOpen && <div className={styles.subMenu}>
+          <Link href="/community?board=build_share" className={styles.subMenuItem}>견적공유게시판</Link>
+          <Link href="/community?board=free" className={styles.subMenuItem}>자유게시판</Link>
+        </div>}
 
         <Link
-          href="/settings"
+          href="/account"
           className={`${styles.menuItem} ${
-            checkActive("/settings")
+            checkActive("/account")
               ? styles.active
               : ""
           }`}
@@ -155,14 +188,16 @@ export default function Sidebar() {
         </Link>
       </nav>
 
-      <button
+      {authError && <p role="alert">{authError}</p>}
+      {account ? <button
         className={styles.logoutButton}
         type="button"
         onClick={handleLogout}
+        disabled={pending}
       >
         <LogOut size={18} />
-        <span>로그아웃</span>
-      </button>
+        <span>{pending ? "로그아웃 중…" : "로그아웃"}</span>
+      </button> : <Link href="/auth" className={styles.logoutButton}>로그인</Link>}
     </aside>
   );
 }

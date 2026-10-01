@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authRequest } from "@/lib/auth";
 import styles from "./Login.module.css";
 
 export default function Login() {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -19,9 +24,20 @@ export default function Login() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(loginData);
+    if (pending) return;
+    setPending(true);
+    setError("");
+    try {
+      await authRequest("login", loginData);
+      router.replace("/account");
+      router.refresh();
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -32,7 +48,7 @@ export default function Login() {
       <form className={styles.loginBox} onSubmit={handleSubmit}>
         <div className={styles.titleArea}>
           <h1>안녕하세요!</h1>
-          <p>COMBEE 사용을 위해 아이디 및 비밀번호를 입력해주세요</p>
+          <p>COMBEE 사용을 위해 이메일 및 비밀번호를 입력해주세요</p>
         </div>
 
         <div className={styles.formArea}>
@@ -42,7 +58,8 @@ export default function Login() {
             <input
               name="email"
               type="email"
-              placeholder="아이디 및 이메일을 입력해주세요"
+              placeholder="이메일을 입력해주세요"
+              autoComplete="email"
               value={loginData.email}
               onChange={handleChange}
               required
@@ -55,6 +72,7 @@ export default function Login() {
             <input
               name="password"
               type="password"
+              autoComplete="current-password"
               placeholder="비밀번호를 입력해주세요"
               value={loginData.password}
               onChange={handleChange}
@@ -62,8 +80,9 @@ export default function Login() {
             />
           </div>
 
-          <button className={styles.loginButton} type="submit">
-            로그인
+          {error && <p role="alert">{error}</p>}
+          <button className={styles.loginButton} type="submit" disabled={pending}>
+            {pending ? "로그인 중…" : "로그인"}
           </button>
         </div>
       </form>
