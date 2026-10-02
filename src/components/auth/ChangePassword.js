@@ -1,5 +1,6 @@
 "use client";
 
+import BrandMark from "@/components/common/BrandMark";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
@@ -61,7 +62,7 @@ export default function ChangePassword() {
 
   return (
     <main className={styles.container}>
-      <div className={styles.logo}>⬡</div>
+      <div className={styles.logo}><BrandMark size={54}/></div>
 
       <form
         className={styles.changeBox}

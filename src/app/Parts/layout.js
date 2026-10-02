@@ -1,3 +1,4 @@
+import WorkspaceBar from "@/components/common/WorkspaceBar";
 import Sidebar from "@/components/common/Sidebar";
 import styles from "./layout.module.css";
 
@@ -9,6 +10,7 @@ export default function PartsLayout({ children })
             <Sidebar />
 
             <div className={styles.content}>
+                <WorkspaceBar section="하드웨어" title="부품 탐색"/>
                 {children}
             </div>
         </div>

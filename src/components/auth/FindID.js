@@ -1,5 +1,6 @@
 "use client";
 
+import BrandMark from "@/components/common/BrandMark";
 import { useState } from "react";
 import styles from "./FindId.module.css";
 
@@ -29,7 +30,7 @@ export default function FindId() {
 
   return (
     <main className={styles.container}>
-      <div className={styles.logo}>⬡</div>
+      <div className={styles.logo}><BrandMark size={54}/></div>
 
       <form className={styles.findBox} onSubmit={handleSubmit}>
         <div className={styles.titleArea}>

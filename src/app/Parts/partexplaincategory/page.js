@@ -1,4 +1,4 @@
-import PartExplainCategory from "@/components/parts/PartExplainCategory";
+import PartGuideWindow from "@/components/parts/PartGuideWindow";
 import styles from "@/components/parts/PartExplainCategory.module.css";
 
 //-------------------
@@ -9,17 +9,13 @@ export default function PartExplainPage()
     return (
         <main className={styles.page}>
             <header className={styles.header}>
-                <h1 className={styles.title}>부품설명</h1>
+                <h1 className={styles.title}>부품 설명</h1>
                 <p className={styles.description}>
-                    컴퓨터의 모든 부품에 대해서 알아보아요!
+                    내 PC를 구성하는 부품, 쉽게 이해하고 비교해보세요.
                 </p>
             </header>
 
-            <p className={styles.breadcrumb}>
-                HOME &gt; 부품설명
-            </p>
-
-            <PartExplainCategory />
+            <PartGuideWindow />
         </main>
     );
 }

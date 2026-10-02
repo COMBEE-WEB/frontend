@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BrandMark from "@/components/common/BrandMark";
 import { useRouter } from "next/navigation";
 import { authRequest } from "@/lib/auth";
 
@@ -36,9 +37,9 @@ export default function AccountPage() {
   }
 
   return (
-    <main className="min-h-screen bg-amber-50 px-6 py-16 text-zinc-900">
-      <section className="mx-auto max-w-lg rounded-2xl border border-amber-100 bg-white p-8 shadow-sm">
-        <p className="mb-6 font-bold text-amber-500">⬡ COMBEE</p>
+    <main className="min-h-screen bg-slate-100 px-6 py-16 text-zinc-900">
+      <section className="mx-auto max-w-lg rounded border border-slate-300 bg-white p-8 shadow-sm">
+        <div className="mb-6 flex items-center gap-3 border-b border-slate-200 pb-5 font-bold text-slate-800"><BrandMark size={32}/> COMBEE</div>
         <h1 className="mb-2 text-2xl font-bold">내 계정</h1>
         {error && <p role="alert" className="my-4 text-red-700">{error}</p>}
         {!account && !error && <p role="status">회원 정보를 불러오는 중…</p>}

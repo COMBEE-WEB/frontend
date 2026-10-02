@@ -1,5 +1,6 @@
 "use client";
 
+import BrandMark from "@/components/common/BrandMark";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,7 +44,7 @@ export default function Login() {
   return (
     <main className={styles.container}>
       {/* 나중에 이미지 로고로 변경 가능 */}
-      <div className={styles.logo}>⬡</div>
+      <div className={styles.logo}><BrandMark size={54}/></div>
 
       <form className={styles.loginBox} onSubmit={handleSubmit}>
         <div className={styles.titleArea}>

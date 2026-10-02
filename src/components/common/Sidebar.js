@@ -12,7 +12,8 @@ import {
   UsersRound,
   Settings,
   LogOut,
-  Boxes,
+  ListStart,
+  ListEnd,
   ChevronDown,
   ChevronRight,
   MessageCircle,
@@ -20,10 +21,22 @@ import {
 } from "lucide-react";
 
 import styles from "./Sidebar.module.css";
+import BrandMark from "./BrandMark";
 
 export default function Sidebar({ onAccount } = {}) {
   const pathname = usePathname();
   const router = useRouter();
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('combee-sidebar-collapsed');
+      setCollapsed(saved === null ? window.matchMedia('(max-width: 700px)').matches : saved === 'true');
+    } catch { setCollapsed(window.matchMedia('(max-width: 700px)').matches); }
+  }, []);
+  function changeCollapsed(value) {
+    setCollapsed(value);
+    try { localStorage.setItem('combee-sidebar-collapsed', String(value)); } catch {}
+  }
   const [account, setAccount] = useState(null);
   const [authError, setAuthError] = useState("");
   const [pending, setPending] = useState(false);
@@ -68,15 +81,19 @@ export default function Sidebar({ onAccount } = {}) {
   };
 
   return (
-    <aside className={styles.sidebar}>
-      <Link href="/" className={styles.logo}>
-        <Boxes size={25} />
+    <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : styles.expanded}`} style={{ width: collapsed ? 80 : 248, minWidth: collapsed ? 80 : 248, padding: collapsed ? '0 0 16px' : '0 16px 16px' }}>
+      <button type="button" className={styles.toggle} onClick={() => changeCollapsed(!collapsed)} aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'} title={collapsed ? '사이드바 펼치기' : '사이드바 접기'} aria-expanded={!collapsed}>
+        {collapsed ? <ListEnd size={17}/> : <ListStart size={17}/>}
+      </button>
+      <Link href="/" aria-label="COMBEE 홈" className={styles.logo}>
+        <BrandMark />
         <span>COMBEE</span>
       </Link>
 
       <nav className={styles.navigation}>
         <Link
           href="/"
+          aria-label="홈" title="홈"
           className={`${styles.menuItem} ${
             pathname === "/" ? styles.active : ""
           }`}
@@ -91,7 +108,9 @@ export default function Sidebar({ onAccount } = {}) {
             pathname.startsWith("/ai") ? styles.active : ""
           }`}
           type="button"
-          onClick={() => setIsAiOpen(!isAiOpen)}
+          aria-label="AI 견적" title="AI 견적"
+          aria-expanded={!collapsed && isAiOpen}
+          onClick={() => { if (collapsed) { changeCollapsed(false); setIsAiOpen(true); } else setIsAiOpen(!isAiOpen); }}
         >
           <Bot size={18} />
           <span>AI 견적</span>
@@ -106,7 +125,7 @@ export default function Sidebar({ onAccount } = {}) {
         </button>
 
         {/* AI 하위 메뉴 */}
-        {isAiOpen && (
+        {!collapsed && isAiOpen && (
           <div className={styles.subMenu}>
             <Link
               href="/ai/question"
@@ -136,6 +155,7 @@ export default function Sidebar({ onAccount } = {}) {
 
         <Link
           href="/Parts/partlist"
+          aria-label="부품 리스트" title="부품 리스트"
           className={`${styles.menuItem} ${
             checkActive("/Parts/partlist") ? styles.active : ""
           }`}
@@ -146,6 +166,7 @@ export default function Sidebar({ onAccount } = {}) {
 
         <Link
           href="/Parts/partexplaincategory"
+          aria-label="부품 설명" title="부품 설명"
           className={`${styles.menuItem} ${
             checkActive("/Parts/partexplaincategory")
               ? styles.active
@@ -158,8 +179,9 @@ export default function Sidebar({ onAccount } = {}) {
 
         <button
           type="button"
-          aria-expanded={isCommunityOpen}
-          onClick={() => setIsCommunityOpen(value => !value)}
+          aria-label="커뮤니티" title="커뮤니티"
+          aria-expanded={!collapsed && isCommunityOpen}
+          onClick={() => { if (collapsed) { changeCollapsed(false); setIsCommunityOpen(true); } else setIsCommunityOpen(value => !value); }}
           className={`${styles.menuItem} ${
             checkActive("/community")
               ? styles.active
@@ -170,13 +192,14 @@ export default function Sidebar({ onAccount } = {}) {
           <span>커뮤니티</span>
           <span className={styles.arrow}>{isCommunityOpen ? <ChevronDown size={15}/> : <ChevronRight size={15}/>}</span>
         </button>
-        {isCommunityOpen && <div className={styles.subMenu}>
+        {!collapsed && isCommunityOpen && <div className={styles.subMenu}>
           <Link href="/community?board=build_share" className={styles.subMenuItem}>견적공유게시판</Link>
           <Link href="/community?board=free" className={styles.subMenuItem}>자유게시판</Link>
         </div>}
 
         <Link
           href="/account"
+          aria-label="설정" title="설정"
           className={`${styles.menuItem} ${
             checkActive("/account")
               ? styles.active
@@ -192,6 +215,7 @@ export default function Sidebar({ onAccount } = {}) {
       {account ? <button
         className={styles.logoutButton}
         type="button"
+        aria-label="로그아웃" title="로그아웃"
         onClick={handleLogout}
         disabled={pending}
       >

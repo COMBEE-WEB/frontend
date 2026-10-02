@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import BrandMark from "@/components/common/BrandMark";
 import Link from "next/link";
 import { authRequest } from "@/lib/auth";
 import styles from "./FindPassword.module.css";
@@ -55,7 +56,7 @@ export default function FindPassword() {
     } finally { setPending(false); }
   }
   return <main className={styles.container}>
-    <div className={styles.logo}>⬡</div>
+    <div className={styles.logo}><BrandMark size={54}/></div>
     <section className={styles.findBox}>
       <div className={styles.titleArea}>
         <h1>비밀번호 찾기</h1>

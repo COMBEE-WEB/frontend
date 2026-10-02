@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUp, RotateCcw, Sparkles } from 'lucide-react';
 import Sidebar from '@/components/common/Sidebar';
+import WorkspaceBar from '@/components/common/WorkspaceBar';
+import BrandMark from '@/components/common/BrandMark';
 import EstimateResult from './EstimateResult';
 import styles from './Conversation.module.css';
 
@@ -118,12 +120,12 @@ export default function Conversation({ mode = 'chat', guidedSeed = false }) {
  return <div className={styles.shell}>
   <Sidebar/>
   <main className={styles.main}>
-   <header className={styles.header}>
-    <nav aria-label="AI 견적 방식"><Link href="/ai/chat" aria-current={!guided ? 'page' : undefined}>자유채팅</Link><Link href="/ai/question" aria-current={guided ? 'page' : undefined}>견적 질문</Link></nav>
-    {!empty && <button onClick={reset} disabled={Boolean(pending)}><RotateCcw size={14}/>새 대화</button>}
-   </header>
+   <WorkspaceBar section="AI 견적" title="견적 워크스페이스"/>
+   {!empty && <div className={styles.header}>
+    <button onClick={reset} disabled={Boolean(pending)}><RotateCcw size={14}/>새 대화</button>
+   </div>}
    {empty ? <section className={styles.start}>
-    <h1>오늘은 어떤 견적을 맞춰볼까요?</h1>
+    <BrandMark size={58}/><p className={styles.eyebrow}>YOUR PC, YOUR WAY</p><h1>오늘은 어떤 견적을 맞춰볼까요?</h1><p className={styles.intro}>예산부터 궁금한 부품까지, BEEBEE에게 편하게 물어보세요.</p>
     <div className={styles.startComposer}>{composer}</div>
     {pending && <p role="status">BEEBEE가 답변을 생각하고 있어요…</p>}
     {error && <p role="alert" className={styles.error}>{error}{login && <Link href="/auth"> 로그인하기</Link>}</p>}

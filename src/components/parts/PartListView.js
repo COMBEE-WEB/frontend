@@ -1,48 +1,53 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { fetchParts, formatPrice } from '@/lib/parts';
+import { fetchParts, formatPrice, partCategories, getPartCategory } from '@/lib/parts';
 import PartDetailModal from './PartDetailModal';
 import styles from './PartListDetail.module.css';
 const PAGE_SIZE = 20;
-export default function PartListView({ category, initialQuery = '' }) {
+export default function PartListView({ category = '', initialQuery = '' }) {
+ const [selectedCategory, setSelectedCategory] = useState(category);
  const [query, setQuery] = useState(initialQuery);
  const [manufacturer, setManufacturer] = useState('');
- const [filter, setFilter] = useState({ q: initialQuery, manufacturer: '', offset: 0, retry: 0 });
+ const [filter, setFilter] = useState({ category, q: initialQuery, manufacturer: '', offset: 0, retry: 0 });
  const [result, setResult] = useState(null);
  const [selectedId, setSelectedId] = useState(null);
  const key = JSON.stringify([category, filter]);
  const current = result?.key === key ? result : null;
  useEffect(() => {
   const controller = new AbortController();
-  const params = new URLSearchParams({ category, q: filter.q, manufacturer: filter.manufacturer, limit: PAGE_SIZE, offset: filter.offset });
+  const params = new URLSearchParams({ q: filter.q, manufacturer: filter.manufacturer, limit: PAGE_SIZE, offset: filter.offset });
+  if (filter.category) params.set('category', filter.category);
   fetchParts('?' + params, controller.signal).then((data) => setResult({ key, data }))
    .catch((error) => { if (!controller.signal.aborted) setResult({ key, error: error.message }); });
   return () => controller.abort();
  }, [category, filter, key]);
  function search(event) {
   event.preventDefault();
-  setFilter({ q: query.trim(), manufacturer: manufacturer.trim(), offset: 0, retry: filter.retry + 1 });
+  setFilter({ category: selectedCategory, q: query.trim(), manufacturer: manufacturer.trim(), offset: 0, retry: filter.retry + 1 });
  }
  return <>
   <section className={styles.productSection} aria-labelledby="product-list-title">
-   <h2 id="product-list-title" className={styles.sectionTitle}>제품 목록</h2>
+   <h2 id="product-list-title" className={styles.sectionTitle}>{getPartCategory(filter.category)?.name || '전체 부품'}</h2>
    <form className={styles.searchForm} onSubmit={search}>
+    <label>카테고리<select className={styles.searchInput} value={selectedCategory} onChange={e => { setSelectedCategory(e.target.value); setFilter({ category: e.target.value, q: query.trim(), manufacturer: manufacturer.trim(), offset: 0, retry: filter.retry + 1 }); }}><option value="">전체 카테고리</option>{partCategories.map(part => <option key={part.id} value={part.id}>{part.name}</option>)}</select></label>
     <label>제품명<input className={styles.searchInput} type="search" maxLength={100} placeholder="예: Ryzen, GeForce"
      value={query} onChange={(e) => setQuery(e.target.value)} /></label>
     <label>제조사<input className={styles.searchInput} type="search" maxLength={100} placeholder="전체 / 예: AMD, ASUS"
      value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} /></label>
-    <button className={styles.actionButton} type="submit">검색</button>
+    <button className={styles.actionButton} type="submit">필터 적용</button>
     <button className={styles.actionButton} type="button" onClick={() => {
-     setQuery(''); setManufacturer(''); setFilter({ q: '', manufacturer: '', offset: 0, retry: filter.retry + 1 });
+     setQuery(''); setManufacturer(''); setSelectedCategory(''); setFilter({ category: '', q: '', manufacturer: '', offset: 0, retry: filter.retry + 1 });
     }}>초기화</button>
    </form>
+   <p className={styles.filterSummary} aria-live="polite">{getPartCategory(filter.category)?.name || '전체 카테고리'}{filter.manufacturer ? ' · ' + filter.manufacturer : ''}{filter.q ? ' · “' + filter.q + '”' : ''}<span>페이지당 {PAGE_SIZE}개 · 제품명을 누르면 상세 사양을 볼 수 있어요.</span></p>
    {!current && <p role="status" className={styles.empty}>부품을 불러오는 중입니다…</p>}
    {current?.error && <div role="alert" className={styles.empty}><p>{current.error}</p>
     <button className={styles.actionButton} onClick={() => setFilter({ ...filter, retry: filter.retry + 1 })}>다시 시도</button></div>}
    {current?.data && <>
     <div className={styles.tableWrapper}><table className={styles.productTable}>
-     <thead><tr><th>부품 이름</th><th>제조사</th><th>출시 연도</th><th>가격</th></tr></thead>
+     <thead><tr><th>분류</th><th>부품 이름</th><th>제조사</th><th>출시 연도</th><th>가격</th></tr></thead>
      <tbody>{current.data.items.map((product) => <tr key={product.id}>
+      <td><span className={styles.categoryBadge}>{getPartCategory(product.category)?.name || product.category}</span></td>
       <td><button className={styles.productLink} onClick={() => setSelectedId(product.id)}>{product.name}</button></td>
       <td>{product.manufacturer === 'Unknown' ? '정보 없음' : product.manufacturer}</td>
       <td>{product.specs?.metadata?.releaseYear || '정보 없음'}</td><td>{formatPrice(product.lowest_price)}</td>

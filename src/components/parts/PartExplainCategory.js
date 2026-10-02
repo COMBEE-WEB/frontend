@@ -1,62 +1,15 @@
-import Link from "next/link";
-import { Folder } from "lucide-react";
-import styles from "./PartExplainCategory.module.css";
-
-const categories = [
-    { id: "cpu", name: "CPU" },
-    { id: "gpu", name: "GPU" },
-    { id: "memory", name: "메모리" },
-    { id: "storage", name: "SSD / HDD" },
-    { id: "mainboard", name: "메인보드" },
-    { id: "power", name: "파워" },
-    { id: "case", name: "PC케이스" },
-];
-
-//-------------------
-// 부품 종류별 상세 페이지 링크 표시
-//-------------------
-function CategoryItem({ category })
-{
-    return (
-        <li>
-            <Link
-                href={`/Parts/partexplaincategory/${category.id}`}
-                className={styles.categoryButton}
-                aria-label={`${category.name} 설명 보기`}
-            >
-                <Folder
-                    className={styles.folderIcon}
-                    fill="currentColor"
-                    strokeWidth={0}
-                    aria-hidden="true"
-                />
-
-                <span className={styles.categoryName}>
-                    {category.name}
-                </span>
-            </Link>
-        </li>
-    );
-}
-
-//-------------------
-// 부품 설명 카테고리 목록 표시
-//-------------------
-export default function PartExplainCategory()
-{
-    return (
-        <ul className={styles.categoryList} aria-label="부품 종류">
-            {categories.map(
-                (category) =>
-                {
-                    return (
-                        <CategoryItem
-                            key={category.id}
-                            category={category}
-                        />
-                    );
-                }
-            )}
-        </ul>
-    );
+import Link from 'next/link';
+import { Cpu, CircuitBoard, MemoryStick, HardDrive, Cable, PcCase, PanelsTopLeft, ArrowUpRight, BookOpen } from 'lucide-react';
+import { partGuides } from '@/lib/part-guides';
+import styles from './PartExplainCategory.module.css';
+export const guideIcons = {cpu:Cpu,gpu:PanelsTopLeft,memory:MemoryStick,storage:HardDrive,mainboard:CircuitBoard,power:Cable,case:PcCase};
+export default function PartExplainCategory(){
+ return <>
+  <section className={styles.intro}><BookOpen size={26}/><div><span>HARDWARE GUIDE</span><h2>부품을 알면, 견적이 쉬워져요.</h2><p>무슨 역할을 하는지부터, 구매 전 확인할 규격까지 차근차근 살펴보세요.</p></div></section>
+  <div className={styles.listHeading}><h2>부품별 알아보기</h2><span>7개의 기본 가이드</span></div>
+  <ul className={styles.categoryList}>{partGuides.map((part,index)=>{const Icon=guideIcons[part.id];return <li key={part.id}><Link href={'/Parts/partexplaincategory/'+part.id} className={styles.categoryButton}>
+   <div className={styles.cardTop}><span className={styles.icon}><Icon size={25} strokeWidth={1.5}/></span><span className={styles.number}>0{index+1}</span></div>
+   <small>{part.english}</small><h3>{part.name}<ArrowUpRight size={16}/></h3><p>{part.role}</p><div className={styles.tags}>{part.tags.map(tag=><span key={tag}>{tag}</span>)}</div>
+  </Link></li>})}</ul>
+ </>;
 }

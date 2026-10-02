@@ -5,7 +5,7 @@ const reply = (data, status = 200) => Response.json(data, { status, headers: { '
 async function proxy(request, context) {
  const { path } = await context.params;
  const route = path.join('/');
- if (!/^(posts(\/[1-9]\d*(\/(comments|edit|delete))?)?|comments\/[1-9]\d*\/(edit|delete))$/.test(route)) return reply({ detail: '잘못된 주소입니다.' }, 404);
+ if (!/^(parts\/[1-9]\d*\/comments|part-comments\/[1-9]\d*\/delete|posts(\/[1-9]\d*(\/(comments|edit|delete))?)?|comments\/[1-9]\d*\/(edit|delete))$/.test(route)) return reply({ detail: '잘못된 주소입니다.' }, 404);
  const write = request.method === 'POST';
  let body;
  if (write) {

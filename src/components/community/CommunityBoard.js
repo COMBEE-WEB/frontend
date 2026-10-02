@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { UserRound, MessageCircle, X, Search } from 'lucide-react';
+import { UserRound, MessageCircle, X, Search, PenLine } from 'lucide-react';
 import Sidebar from '@/components/common/Sidebar';
+import WorkspaceBar from '@/components/common/WorkspaceBar';
 import { getPartCategory, formatPrice } from '@/lib/parts';
 import styles from './CommunityBoard.module.css';
 export async function communityRequest(path, body, signal) {
@@ -39,7 +40,7 @@ function PostDialog({ id, account, onClose, onChange }) {
  async function reloadComments() { const data = await communityRequest('posts/' + id + '/comments'); setComments(data.items); setMore(data.has_more); }
  const owner = post && account?.user?.id === post.author_id;
  return <dialog ref={dialog} className={styles.dialog} aria-label="게시글 상세" onCancel={e => { if (pending) e.preventDefault(); else onClose(); }}>
-  <button className={styles.close} aria-label="닫기" disabled={pending} onClick={onClose}><X size={20}/></button>
+  <div className={styles.dialogBar}><span>커뮤니티 · 게시글</span><button className={styles.close} aria-label="닫기" disabled={pending} onClick={onClose}><X size={20}/></button></div>
   {!post ? <p className={styles.empty}>{error || '게시글을 불러오는 중…'}</p> : <>
    <section className={styles.detail}>
     <Author name={post.author?.nickname} time={post.created_at}/>
@@ -63,6 +64,7 @@ function PostDialog({ id, account, onClose, onChange }) {
 }
 export default function CommunityBoard({ board, initialPost = null }) {
  const share = board === 'build_share';
+ const [composing, setComposing] = useState(false);
  const [account, setAccount] = useState(null), [items, setItems] = useState([]), [loading, setLoading] = useState(true), [more, setMore] = useState(false);
  const [page, setPage] = useState(0), [query, setQuery] = useState(''), [search, setSearch] = useState(''), [revision, setRevision] = useState(0);
  const [title, setTitle] = useState(''), [content, setContent] = useState(''), [buildId, setBuildId] = useState(''), [builds, setBuilds] = useState([]), [preview, setPreview] = useState(null);
@@ -91,22 +93,23 @@ export default function CommunityBoard({ board, initialPost = null }) {
   lock.current = true; setPending(true); setError('');
   try {
    const data = await communityRequest('posts', { board, title, content, build_id: share ? Number(buildId) : null });
-   setTitle(''); setContent(''); setBuildId(''); setPreview(null); setPage(0); setQuery(''); setSearch(''); setRevision(n => n + 1); setSelected(data.id);
+   setTitle(''); setContent(''); setBuildId(''); setPreview(null); setPage(0); setQuery(''); setSearch(''); setRevision(n => n + 1); setSelected(data.id); setComposing(false);
   } catch (err) { setError(err.message); } finally { lock.current = false; setPending(false); }
  }
  function refresh() { setRevision(n => n + 1); }
  return <div className={styles.shell}><Sidebar onAccount={setAccount}/><main className={styles.main}>
-  <nav className={styles.tabs} aria-label="커뮤니티 게시판"><Link href="/community?board=build_share" aria-current={share ? 'page' : undefined}>견적공유게시판</Link><Link href="/community?board=free" aria-current={!share ? 'page' : undefined}>자유게시판</Link></nav>
-  <header className={styles.heading}><h1>{share ? '견적을 공유해보세요!' : '오늘 하루는 어때요?'}</h1><p>{share ? 'AI 및 직접 맞춘 견적을 사람들과 공유하며 의견을 나눠보세요!' : '오늘 하루 및 컴퓨터에 대해 가볍게 이야기해보세요!'}</p></header>
-  <section className={styles.compose}><Author name={account?.profile?.nickname || 'COMBEE 회원'}/>
+   <WorkspaceBar section="커뮤니티" title="게시판"/>
+  <div className={styles.content}>
+  <header className={styles.heading}><div><span className={styles.eyebrow}>COMBEE COMMUNITY</span><h1>{share ? '함께 만드는 더 좋은 견적' : '컴퓨터 이야기, 편하게 나눠요'}</h1><p>{share ? '내 구성을 공유하고, 다른 사람들의 조언을 들어보세요.' : '궁금한 점부터 소소한 일상까지, 여기에 남겨주세요.'}</p></div><button className={styles.primary} aria-expanded={composing} aria-controls="community-compose" onClick={() => setComposing(v => !v)}><PenLine size={16}/>{composing ? '작성 접기' : '글 쓰기'}</button></header>
+  <section id="community-compose" className={styles.compose} hidden={!composing}><div className={styles.composeHeader}><Author name={account?.profile?.nickname || 'COMBEE 회원'}/><span>새 이야기 작성</span></div>
    {account ? <form onSubmit={publish}><input aria-label="게시글 제목" placeholder={share ? '내 견적, 어떤가요?' : '이야기의 제목을 적어주세요'} required maxLength={200} value={title} onChange={e => setTitle(e.target.value)} disabled={pending}/><textarea aria-label="게시글 내용" placeholder="나누고 싶은 이야기를 적어주세요." required maxLength={5000} value={content} onChange={e => setContent(e.target.value)} disabled={pending}/>
     {share && <><label className={styles.select}>내 저장 견적<select aria-label="공유할 견적" required value={buildId} disabled={pending} onChange={e => { setBuildId(e.target.value); setPreview(null); setBuildError(''); }}><option value="">견적 선택</option>{builds.map(build => <option key={build.id} value={build.id}>{build.name} · #{build.id}</option>)}</select></label>{!builds.length && <p className={styles.muted}><Link href="/ai/question">견적을 먼저 만들어 저장해주세요.</Link></p>}{buildError && <p role="alert" className={styles.error}>{buildError}</p>}{preview && <details><summary>공개될 부품 목록 미리보기</summary><SharedBuild build={preview}/></details>}<p className={styles.muted}>첨부한 부품 목록과 가격이 공개돼요. 개인 상담 내용은 포함되지 않아요.</p></>}
     <div className={styles.actions}><small>게시글과 댓글은 누구나 볼 수 있어요.</small><button className={styles.primary} disabled={pending || !title.trim() || !content.trim() || (share && !preview)}>{pending ? '등록 중…' : '글쓰기'}</button></div>
    </form> : <p className={styles.muted}><Link href="/auth">로그인하고 이야기를 나눠보세요.</Link></p>}
    {error && <p role="alert" className={styles.error}>{error}</p>}
   </section>
-  <form className={styles.search} onSubmit={e => { e.preventDefault(); setPage(0); setLoading(true); setQuery(search); setRevision(n => n + 1); }}><Search size={15}/><input aria-label="게시글 제목 검색" placeholder="제목으로 검색" maxLength={100} value={search} onChange={e => setSearch(e.target.value)}/><button>검색</button></form>
-  <section className={styles.list} aria-label="게시글 목록">{listError ? <p role="alert" className={styles.empty}>{listError}<button onClick={refresh}>다시 시도</button></p> : loading ? <p className={styles.empty}>게시글을 불러오는 중…</p> : items.length ? items.map(post => <button className={styles.row} key={post.id} onClick={() => setSelected(post.id)}><Author name={post.author?.nickname}/><span className={styles.postTitle}>{post.title} <small><MessageCircle size={12}/>{post.comments?.[0]?.count || 0}</small></span><time>{date(post.created_at)}</time></button>) : <p className={styles.empty}>{query ? '검색 결과가 없습니다.' : '아직 게시글이 없어요. 첫 이야기를 남겨보세요!'}</p>}</section>
+  <div className={styles.listToolbar}><div className={styles.listLabel}><h2>{query ? '검색 결과' : '게시글'}</h2><span>최신순</span></div><form className={styles.search} onSubmit={e => { e.preventDefault(); setPage(0); setLoading(true); setQuery(search); setRevision(n => n + 1); }}><Search size={15}/><input aria-label="게시글 제목 검색" placeholder="제목으로 검색" maxLength={100} value={search} onChange={e => setSearch(e.target.value)}/><button>검색</button></form></div>
+  <section className={styles.list} aria-label="게시글 목록">{listError ? <p role="alert" className={styles.empty}>{listError}<button onClick={refresh}>다시 시도</button></p> : loading ? <p className={styles.empty}>게시글을 불러오는 중…</p> : items.length ? items.map(post => <button className={styles.row} key={post.id} onClick={() => setSelected(post.id)}><Author name={post.author?.nickname}/><span className={styles.postTitle}>{post.title} <small aria-label="댓글 수"><MessageCircle size={13}/>{post.comments?.[0]?.count || 0}</small></span><time>{date(post.created_at)}</time></button>) : <p className={styles.empty}>{query ? '검색 결과가 없습니다.' : '아직 게시글이 없어요. 첫 이야기를 남겨보세요!'}</p>}</section>
   <div className={styles.pagination}><button disabled={page === 0} onClick={() => { setLoading(true); setPage(n => n - 1); }}>이전</button><span>{page + 1}</span><button disabled={!more} onClick={() => { setLoading(true); setPage(n => n + 1); }}>다음</button></div>
- </main>{selected && <PostDialog key={selected} id={selected} account={account} onClose={() => setSelected(null)} onChange={refresh}/>}</div>;
+ </div></main>{selected && <PostDialog key={selected} id={selected} account={account} onClose={() => setSelected(null)} onChange={refresh}/>}</div>;
 }
