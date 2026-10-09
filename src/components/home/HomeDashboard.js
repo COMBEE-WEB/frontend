@@ -1,6 +1,8 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authRequest } from '@/lib/auth';
 import Sidebar from '@/components/common/Sidebar';
 import WorkspaceBar from '@/components/common/WorkspaceBar';
 import RecentEstimates from './RecentEstimates';
@@ -9,7 +11,21 @@ import OnboardingFlow from '@/components/ai/OnboardingFlow';
 import styles from './Dashboard.module.css';
 
 export default function HomeDashboard() {
+ const router = useRouter();
  const [account, setAccount] = useState(null);
+ const [authError, setAuthError] = useState('');
+ useEffect(() => {
+  let active = true;
+  authRequest('me').then(data => { if (active) setAccount(data); }).catch(error => {
+   if (!active) return;
+   if ([400, 401, 403, 422].includes(error.status)) router.replace('/auth');
+   else setAuthError(error.message);
+  });
+  return () => { active = false; };
+ }, [router]);
+ if (!account) return <main className={styles.main}>{authError
+  ? <div role="alert"><p>{authError}</p><button onClick={() => window.location.reload()}>다시 시도</button></div>
+  : <p role="status">로그인 상태를 확인하는 중…</p>}</main>;
  const name = account?.member?.full_name || account?.profile?.nickname;
  return <div className={styles.shell}>
   <Sidebar onAccount={setAccount} />

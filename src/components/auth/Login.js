@@ -32,7 +32,7 @@ export default function Login() {
     setError("");
     try {
       await authRequest("login", loginData);
-      router.replace("/ai/chat");
+      router.replace("/");
       router.refresh();
     } catch (error) {
       setError(error.message);
