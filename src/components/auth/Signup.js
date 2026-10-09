@@ -50,7 +50,7 @@ export default function Signup() {
       if (result.email_confirmation_required) {
         setCompleted(true);
       } else {
-        router.replace("/account");
+        router.replace("/ai/chat");
         router.refresh();
       }
     } catch (error) {

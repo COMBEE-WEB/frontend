@@ -120,7 +120,7 @@ export default function OnboardingFlow({ gate = false, force = false }) {
  const question = stage === 'quiz' ? catalog?.quizzes[level][index] : stage === 'survey' ? catalog?.surveys[level][index] : null;
  return <dialog ref={dialog} className={styles.dialog} aria-labelledby="onboarding-title" onCancel={e => { e.preventDefault(); close(); }}>
   <button className={styles.close} aria-label="닫고 자유채팅으로 이동" onClick={close} disabled={pending}><X size={18}/></button>
-  <div className={styles.topbar}><BrandMark size={28}/><strong>맞춤 견적 설정</strong><span>BEEBEE</span></div>
+  <div className={styles.topbar}><BrandMark size={28}/><strong>맞춤 견적 설정</strong><span>BEEB</span></div>
   <div className={styles.body}>
    <ol className={styles.steps} aria-label="견적 질문 단계">{['수준 확인', '기본 조건', '맞춤 질문'].map((item, i) => <li key={item} aria-current={phase === i ? 'step' : undefined} data-done={phase > i}><span>{phase > i ? <Check size={12}/> : i + 1}</span>{item}</li>)}</ol>
    {['quiz', 'survey', 'details'].includes(stage) && <progress className={styles.meter} value={index + 1} max={total} aria-label="현재 단계 진행률"/>}

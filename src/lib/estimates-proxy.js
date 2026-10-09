@@ -5,19 +5,19 @@ const backend = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' };
 const reply = (data, status = 200) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 
-export async function estimatesProxy(request, id = '') {
- if (id && !['chat', 'onboarding', 'onboarding/preferences'].includes(id) && !/^[1-9]\d*$/.test(id)) return reply({ detail: '견적 번호가 올바르지 않습니다.' }, 400);
- if (request.method === 'POST' && !sameOrigin(request)) return reply({ detail: 'Invalid request origin.' }, 403);
+export async function estimatesProxy(request, id = '', resource = 'estimates') {
+ if (id && !['chat', 'onboarding', 'onboarding/preferences'].includes(id) && !/^[1-9]\d*(\/favorite)?$/.test(id)) return reply({ detail: '견적 번호가 올바르지 않습니다.' }, 400);
+ if (['POST', 'DELETE'].includes(request.method) && !sameOrigin(request)) return reply({ detail: 'Invalid request origin.' }, 403);
  let body;
  if (request.method === 'POST') {
   const raw = await request.text();
-  if (raw.length > 12000) return reply({ detail: '입력 내용이 너무 깁니다.' }, 413);
+  if (raw.length > 60000) return reply({ detail: '입력 내용이 너무 깁니다.' }, 413);
   try { body = JSON.parse(raw); } catch { return reply({ detail: '입력 형식이 올바르지 않습니다.' }, 400); }
  }
  const jar = await cookies();
  let token = jar.get('combee_access')?.value;
  async function call() {
-  return fetch(backend + '/api/estimates' + (id ? '/' + id : ''), {
+  return fetch(backend + '/api/' + resource + (id ? '/' + id : '') + (request.method === 'GET' && !id ? new URL(request.url).search : ''), {
    method: request.method, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
    body: body ? JSON.stringify(body) : undefined, cache: 'no-store', signal: AbortSignal.timeout(170000),
   });

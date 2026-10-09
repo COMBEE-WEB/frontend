@@ -9,7 +9,7 @@ import EstimateResult from './EstimateResult';
 import styles from './Conversation.module.css';
 
 const questions = [
- '안녕하세요, BEEBEE예요. 본체 예산은 얼마로 생각하고 계세요?',
+ '안녕하세요, BEEB예요. 본체 예산은 얼마로 생각하고 계세요?',
  'PC를 주로 어떤 용도로 사용하실 건가요?',
  '주로 사용할 게임이나 프로그램을 알려주세요. 원하는 해상도나 작업 수준도 함께 적어주면 좋아요.',
  '계속 사용할 부품이 있나요? 없으면 “없음”이라고 답해주세요.',
@@ -22,21 +22,44 @@ function budgetValue(text) {
  const won = value.includes('만') || (!value.endsWith('원') && n <= 2000) ? n * 10000 : n;
  return Number.isInteger(won) && won >= 300000 && won <= 20000000 ? won : null;
 }
-export default function Conversation({ mode = 'chat', guidedSeed = false }) {
+export default function Conversation({ mode = 'chat', guidedSeed = false, conversationId = null }) {
  const guided = mode === 'question';
+ const [savedId, setSavedId] = useState(conversationId);
+ const [saveError, setSaveError] = useState('');
  const [messages, setMessages] = useState(guided ? [{ role: 'assistant', content: questions[0] }] : []);
  const [input, setInput] = useState('');
  const [step, setStep] = useState(0);
  const [conditions, setConditions] = useState({});
  const [ready, setReady] = useState(false);
- const [pending, setPending] = useState(guidedSeed ? 'context' : '');
+ const [pending, setPending] = useState(guidedSeed || conversationId ? 'context' : '');
  const [error, setError] = useState('');
  const [login, setLogin] = useState(false);
  const lock = useRef(false);
  const bottom = useRef(null);
  const inputRef = useRef(null);
  useEffect(() => {
-  if (!guidedSeed) return;
+  if (!conversationId) return;
+  let active = true;
+  fetch('/api/conversations/' + conversationId, { cache: 'no-store' }).then(async response => {
+   const data = await response.json();
+   if (!response.ok) throw new Error(data.detail || '대화를 불러오지 못했습니다.');
+   if (active) { setMessages(data.messages); setSavedId(data.id); }
+  }).catch(error => { if (active) setError(error.message); }).finally(() => { if (active) setPending(''); });
+  return () => { active = false; };
+ }, [conversationId]);
+ async function saveConversation(nextMessages) {
+  try {
+   const response = await fetch('/api/conversations' + (savedId ? '/' + savedId : ''), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages: nextMessages.map(m => ({ role: m.role, content: m.content, result_id: m.result?.id || m.result_id || null })) }),
+   });
+   const data = await response.json();
+   if (!response.ok) throw new Error(data.detail || '대화를 저장하지 못했습니다.');
+   setSavedId(data.id); setSaveError('');
+  } catch (error) { setSaveError('대화 기록 저장 실패: ' + error.message); }
+ }
+ useEffect(() => {
+  if (!guidedSeed || conversationId) return;
   let active = true;
   fetch('/api/estimates/onboarding', { cache: 'no-store' }).then(async response => {
    const data = await response.json();
@@ -49,10 +72,11 @@ export default function Conversation({ mode = 'chat', guidedSeed = false }) {
     { role: 'assistant', content: (data.levels[data.profile.level] || '') + ' 맞춤 답변을 가져왔어요. 선택한 취향을 반영해 견적을 만들거나, 여기서 조건을 더 이야기해주세요.' }]);
   }).catch(err => { if (active) setError(err.message); }).finally(() => { if (active) setPending(''); });
   return () => { active = false; };
- }, [guidedSeed]);
+ }, [guidedSeed, conversationId]);
  useEffect(() => { bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages, pending]);
  function reset() {
   if (lock.current) return;
+  setSavedId(null); setSaveError('');
   setMessages(guided ? [{ role: 'assistant', content: questions[0] }] : []);
   setConditions({}); setReady(false); setStep(0); setInput(''); setError(''); setLogin(false);
  }
@@ -89,12 +113,20 @@ export default function Conversation({ mode = 'chat', guidedSeed = false }) {
   if (history.length > 20 || history.reduce((sum, m) => sum + m.content.length, 0) > 8000) {
    setError('대화가 길어졌어요. 새 대화를 시작해주세요. 저장된 견적은 홈에서 다시 볼 수 있어요.'); return;
   }
-  lock.current = true; setPending('reply');
+  lock.current = true; setPending('sending');
+  setMessages(prev => [...prev, { role: 'user', content: text }]);
+  setInput(''); setReady(false);
   try {
+   await new Promise(resolve => setTimeout(resolve, 180));
+   setPending('reply');
    const data = await api('/chat', { messages: history });
-   setMessages(prev => [...prev, { role: 'user', content: text }, { role: 'assistant', content: data.reply }]);
+   setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
    setInput(''); setConditions(data.conditions); setReady(data.ready);
-  } catch (err) { setError(err.message || '답변을 받지 못했습니다.'); }
+   await saveConversation([...messages, { role: 'user', content: text }, { role: 'assistant', content: data.reply }]);
+  } catch (err) {
+   setMessages(prev => prev.slice(0, -1)); setInput(text);
+   setError(err.message || '답변을 받지 못했습니다.');
+  }
   finally { lock.current = false; setPending(''); inputRef.current?.focus(); }
  }
  async function generate() {
@@ -104,6 +136,7 @@ export default function Conversation({ mode = 'chat', guidedSeed = false }) {
    const result = await api('', conditions);
    setMessages(prev => [...prev, { role: 'assistant', content: '등록 부품으로 구성한 견적이에요.', result }]);
    setReady(false);
+   await saveConversation([...messages, { role: 'assistant', content: '등록 부품으로 구성한 견적이에요.', result }]);
   } catch (err) { setError(err.message || '견적을 생성하지 못했습니다.'); }
   finally { lock.current = false; setPending(''); }
  }
@@ -111,7 +144,7 @@ export default function Conversation({ mode = 'chat', guidedSeed = false }) {
  const chips = guided && step < 4 ? step === 0 ? ['100만원', '150만원', '200만원'] : step === 1 ? purposes : step === 3 ? ['없음'] : [] : [];
  const composer = <form className={styles.composer} onSubmit={e => { e.preventDefault(); send(); }}>
   <Sparkles size={19} aria-hidden="true"/>
-  <textarea ref={inputRef} aria-label={guided ? '질문에 답하기' : 'BEEBEE에게 메시지 보내기'} placeholder={guided ? step === 0 ? '예: 150만원' : '답변을 입력해주세요' : 'BEEBEE에게 견적 물어보기'}
+  <textarea ref={inputRef} aria-label={guided ? '질문에 답하기' : 'BEEB에게 메시지 보내기'} placeholder={guided ? step === 0 ? '예: 150만원' : '답변을 입력해주세요' : 'BEEB에게 견적 물어보기'}
    rows={1} maxLength={1000} value={input} disabled={Boolean(pending)}
    onChange={e => setInput(e.target.value)}
    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }}/>
@@ -121,28 +154,35 @@ export default function Conversation({ mode = 'chat', guidedSeed = false }) {
   <Sidebar/>
   <main className={styles.main}>
    <WorkspaceBar section="AI 견적" title="견적 워크스페이스"/>
+   <div className={styles.historyLink}><Link href="/account#conversation-history">대화 기록 · 즐겨찾기</Link></div>
    {!empty && <div className={styles.header}>
     <button onClick={reset} disabled={Boolean(pending)}><RotateCcw size={14}/>새 대화</button>
    </div>}
    {empty ? <section className={styles.start}>
-    <BrandMark size={58}/><p className={styles.eyebrow}>YOUR PC, YOUR WAY</p><h1>오늘은 어떤 견적을 맞춰볼까요?</h1><p className={styles.intro}>예산부터 궁금한 부품까지, BEEBEE에게 편하게 물어보세요.</p>
+    <BrandMark size={58}/><p className={styles.eyebrow}>YOUR PC, YOUR WAY</p><h1>오늘은 어떤 견적을 맞춰볼까요?</h1><p className={styles.intro}>예산부터 궁금한 부품까지, BEEB에게 편하게 물어보세요.</p>
     <div className={styles.startComposer}>{composer}</div>
-    {pending && <p role="status">BEEBEE가 답변을 생각하고 있어요…</p>}
+    {pending && <p role="status">선택한 조건을 불러오는 중…</p>}
     {error && <p role="alert" className={styles.error}>{error}{login && <Link href="/auth"> 로그인하기</Link>}</p>}
    </section> : <>
     <section className={styles.scroll} aria-label="견적 대화">
      <div className={styles.messages}>
       {messages.map((m, i) => <article key={i} className={m.role === 'user' ? styles.user : styles.assistant}>
-       {m.role === 'assistant' && <span className={styles.name}>BEEBEE</span>}
-       {m.result ? <><EstimateResult result={m.result}/>{m.result.id && <Link className={styles.saved} href={'/ai/estimates/' + m.result.id}>저장된 견적 열기 →</Link>}</> : <p>{m.content}</p>}
+       {m.role === 'assistant' && <span className={styles.name}>BEEB</span>}
+       {m.result ? <><EstimateResult result={m.result}/>{m.result.id && <Link className={styles.saved} href={'/ai/estimates/' + m.result.id}>저장된 견적 열기 →</Link>}</> : <><p>{m.content}</p>{m.result_id && <Link className={styles.saved} href={'/ai/estimates/' + m.result_id}>저장된 견적 열기 →</Link>}</>}
       </article>)}
-      {pending && <p className={styles.status} role="status">{pending === 'estimate' ? '등록 부품을 비교해 견적을 만들고 있어요. 잠시만 기다려주세요…' : 'BEEBEE가 답변을 생각하고 있어요…'}</p>}
+      {['reply', 'estimate'].includes(pending) && <article className={`${styles.assistant} ${styles.thinking}`} role="status" aria-live="polite">
+       <span className={styles.name}>BEEB</span>
+       <div className={styles.thinkingLine}><span className={styles.thinkingDots} aria-hidden="true"><i/><i/><i/></span>
+        <span>{pending === 'estimate' ? '부품을 비교하고 있어요…' : '생각하는 중…'}</span>
+       </div>
+      </article>}
       <div ref={bottom}/>
      </div>
     </section>
     <footer className={styles.footer}>
      {chips.length > 0 && <div className={styles.chips}>{chips.map(text => <button key={text} disabled={Boolean(pending)} onClick={() => send(text)}>{text}</button>)}</div>}
      {ready && <div className={styles.confirm}><span>본체 {(conditions.budget_won / 10000).toLocaleString('ko-KR')}만원 · {conditions.purpose}</span><button disabled={Boolean(pending)} onClick={generate}>이 조건으로 견적 만들기 <ArrowUp size={15}/></button></div>}
+     {saveError && <p role="alert" className={styles.error}>{saveError}</p>}
      {error && <p role="alert" className={styles.error}>{error}{login && <Link href="/auth"> 로그인하기</Link>}</p>}
      {(!guided || step < 4) && composer}
      {guided && step >= 4 && !ready && !pending && <button className={styles.restart} onClick={reset}>다른 조건으로 다시 질문하기</button>}
