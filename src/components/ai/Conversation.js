@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUp, RotateCcw, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowUp, History, RotateCcw, Sparkles } from 'lucide-react';
 import Sidebar from '@/components/common/Sidebar';
 import WorkspaceBar from '@/components/common/WorkspaceBar';
 import BrandMark from '@/components/common/BrandMark';
 import EstimateResult from './EstimateResult';
+import ConversationHistory from './ConversationHistory';
 import styles from './Conversation.module.css';
 
 const questions = [
@@ -34,6 +36,9 @@ export default function Conversation({ mode = 'chat', guidedSeed = false, conver
  const [pending, setPending] = useState(guidedSeed || conversationId ? 'context' : '');
  const [error, setError] = useState('');
  const [login, setLogin] = useState(false);
+ const [historyOpen, setHistoryOpen] = useState(false);
+ const [historyVersion, setHistoryVersion] = useState(0);
+ const router = useRouter();
  const lock = useRef(false);
  const bottom = useRef(null);
  const inputRef = useRef(null);
@@ -55,6 +60,7 @@ export default function Conversation({ mode = 'chat', guidedSeed = false, conver
    });
    const data = await response.json();
    if (!response.ok) throw new Error(data.detail || '대화를 저장하지 못했습니다.');
+   if (!savedId) setHistoryVersion(version => version + 1);
    setSavedId(data.id); setSaveError('');
   } catch (error) { setSaveError('대화 기록 저장 실패: ' + error.message); }
  }
@@ -76,6 +82,7 @@ export default function Conversation({ mode = 'chat', guidedSeed = false, conver
  useEffect(() => { bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages, pending]);
  function reset() {
   if (lock.current) return;
+  if (conversationId) router.replace('/ai/chat');
   setSavedId(null); setSaveError('');
   setMessages(guided ? [{ role: 'assistant', content: questions[0] }] : []);
   setConditions({}); setReady(false); setStep(0); setInput(''); setError(''); setLogin(false);
@@ -152,11 +159,18 @@ export default function Conversation({ mode = 'chat', guidedSeed = false, conver
  </form>;
  return <div className={styles.shell}>
   <Sidebar/>
+  {!guided && <aside id="chat-history-panel" className={`${styles.historyPanel} ${historyOpen ? styles.historyPanelOpen : ''}`} aria-label="대화 기록">
+   <div className={styles.historyPanelHeading}><strong>대화 기록</strong>
+    <button type="button" className={styles.newChatButton} onClick={reset} disabled={Boolean(pending)}><RotateCcw size={15} aria-hidden="true"/> 새 채팅</button>
+   </div>
+   <div className={styles.historyPanelBody}><ConversationHistory key={historyVersion} compact activeId={savedId} onOpenConversation={() => setHistoryOpen(false)} onDeleteConversation={reset}/></div>
+  </aside>}
   <main className={styles.main}>
    <WorkspaceBar section="AI 견적" title="견적 워크스페이스"/>
-   <div className={styles.historyLink}><Link href="/account#conversation-history">대화 기록 · 즐겨찾기</Link></div>
-   {!empty && <div className={styles.header}>
-    <button onClick={reset} disabled={Boolean(pending)}><RotateCcw size={14}/>새 대화</button>
+   {!guided && <div className={styles.historyLink}>
+    <button type="button" aria-expanded={historyOpen} aria-controls="chat-history-panel" onClick={() => setHistoryOpen(open => !open)}>
+     <History size={15} aria-hidden="true"/> 대화 기록
+    </button>
    </div>}
    {empty ? <section className={styles.start}>
     <BrandMark size={58}/><p className={styles.eyebrow}>YOUR PC, YOUR WAY</p><h1>오늘은 어떤 견적을 맞춰볼까요?</h1><p className={styles.intro}>예산부터 궁금한 부품까지, BEEB에게 편하게 물어보세요.</p>
