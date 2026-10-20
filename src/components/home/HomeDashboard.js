@@ -26,7 +26,7 @@ export default function HomeDashboard() {
  if (!account) return <main className={styles.main}>{authError
   ? <div role="alert"><p>{authError}</p><button onClick={() => window.location.reload()}>다시 시도</button></div>
   : <p role="status">로그인 상태를 확인하는 중…</p>}</main>;
- const name = account?.member?.full_name || account?.profile?.nickname;
+ const name = account?.profile?.nickname || account?.member?.full_name;
  return <div className={styles.shell}>
   <Sidebar onAccount={setAccount} />
   <main className={styles.main}>

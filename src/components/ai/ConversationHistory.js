@@ -1,14 +1,19 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { MessageCircle } from 'lucide-react';
 import styles from './Estimate.module.css';
-export default function ConversationHistory() {
+export default function ConversationHistory({ onlyFavorites: controlledFavorites, onSummaryChange }) {
  const [items, setItems] = useState(null);
  const [error, setError] = useState('');
  const [hasMore, setHasMore] = useState(false);
- const [onlyFavorites, setOnlyFavorites] = useState(false);
+ const [localFavorites, setLocalFavorites] = useState(false);
+ const onlyFavorites = controlledFavorites ?? localFavorites;
  const [busy, setBusy] = useState(null);
  const [confirmId, setConfirmId] = useState(null);
+ useEffect(() => {
+  if (items) onSummaryChange?.({ count: items.length, hasMore });
+ }, [items, hasMore, onSummaryChange]);
  useEffect(() => {
   const controller = new AbortController();
   fetch('/api/conversations', { cache: 'no-store', signal: controller.signal }).then(async response => {
@@ -39,10 +44,10 @@ export default function ConversationHistory() {
  }
  const visible = items?.filter(item => !onlyFavorites || item.favorite);
  return <div>
-  <label className={styles.favoriteFilter}><input type="checkbox" checked={onlyFavorites} onChange={event => setOnlyFavorites(event.target.checked)}/> 즐겨찾기만 보기</label>
+  {controlledFavorites === undefined && <label className={styles.favoriteFilter}><input type="checkbox" checked={onlyFavorites} onChange={event => setLocalFavorites(event.target.checked)}/> 즐겨찾기만 보기</label>}
   {error && <p role="alert" className={styles.error}>{error}</p>}
   {!items && !error && <p role="status">대화 기록을 불러오는 중…</p>}
-  {visible && !visible.length && <p className={styles.hint}>{onlyFavorites ? '즐겨찾기한 대화가 없습니다.' : '저장된 대화가 없습니다. AI와 대화하면 자동으로 저장됩니다.'}</p>}
+  {visible && !visible.length && (items.length ? <p className={styles.hint}>즐겨찾기한 대화가 없습니다.</p> : <div className={styles.emptyState}><MessageCircle size={45} strokeWidth={1.6} aria-hidden="true"/><p>아직 저장한 대화가 없어요</p></div>)}
   <ul className={styles.recent}>{visible?.map(item => <li key={item.id}>
    <div className={styles.savedRow}><button className={styles.favoriteButton} aria-label={item.favorite ? '대화 즐겨찾기 해제' : '대화 즐겨찾기'} aria-pressed={item.favorite} disabled={busy !== null} onClick={() => mutate(item)}>{item.favorite ? '★' : '☆'}</button>
     <Link href={'/ai/chat?conversation=' + item.id}>{item.title}<time>{new Date(item.created_at).toLocaleDateString('ko-KR')}</time></Link>

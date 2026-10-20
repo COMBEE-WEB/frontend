@@ -1,6 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { FileText } from 'lucide-react';
 import styles from '@/components/ai/Estimate.module.css';
 
 async function readList(offset, signal) {
@@ -10,12 +11,16 @@ async function readList(offset, signal) {
  return data;
 }
 
-export default function RecentEstimates({ account }) {
- const [onlyFavorites, setOnlyFavorites] = useState(false);
+export default function RecentEstimates({ account, accountView = false, onlyFavorites: controlledFavorites, onSummaryChange }) {
+ const [localFavorites, setLocalFavorites] = useState(false);
+ const onlyFavorites = controlledFavorites ?? localFavorites;
  const [state, setState] = useState(null);
  const [busy, setBusy] = useState(null);
  const [error, setError] = useState('');
  const [confirmId, setConfirmId] = useState(null);
+ useEffect(() => {
+  if (state?.items) onSummaryChange?.({ count: state.items.length, hasMore: state.has_more });
+ }, [state, onSummaryChange]);
  useEffect(() => {
   if (!account) return;
   const controller = new AbortController();
@@ -61,9 +66,10 @@ export default function RecentEstimates({ account }) {
  if (!state) return <p role="status" className={styles.hint}>견적 내역을 불러오는 중…</p>;
  if (state.error) return <p role="alert" className={styles.hint}>{state.error}</p>;
  return <div>
-  <label className={styles.favoriteFilter}><input type="checkbox" checked={onlyFavorites} onChange={event => setOnlyFavorites(event.target.checked)}/> 즐겨찾기만 보기</label>
+  {controlledFavorites === undefined && <label className={styles.favoriteFilter}><input type="checkbox" checked={onlyFavorites} onChange={event => setLocalFavorites(event.target.checked)}/> 즐겨찾기만 보기</label>}
   {error && <p role="alert" className={styles.error}>{error}</p>}
-  {!state.items.length && <p className={styles.hint}>저장된 견적이 없습니다. 첫 AI 견적을 만들어보세요.</p>}
+  {!state.items.length && (accountView ? <div className={styles.emptyState}><FileText size={45} strokeWidth={1.6} aria-hidden="true"/><p>아직 저장한 견적이 없어요</p></div> : <p className={styles.hint}>저장된 견적이 없습니다. 첫 AI 견적을 만들어보세요.</p>)}
+  {!!state.items.length && !state.items.some(item => !onlyFavorites || item.favorite) && <p className={styles.hint}>즐겨찾기한 견적이 없습니다.</p>}
   <ul className={styles.recent}>{state.items.filter(item => !onlyFavorites || item.favorite).map(item => <li key={item.id}>
    <div className={styles.savedRow}>
     <button className={styles.favoriteButton} aria-label={item.favorite ? "견적 즐겨찾기 해제" : "견적 즐겨찾기"} aria-pressed={item.favorite} disabled={busy !== null} onClick={() => favorite(item)}>{item.favorite ? "★" : "☆"}</button>

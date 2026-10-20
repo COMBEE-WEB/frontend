@@ -35,7 +35,7 @@ function clearSession(jar) {
 
 async function handle(request, context) {
   const { action } = await context.params;
-  if (!(request.method === "GET" ? ["me", "recovery-status"] : ["login", "signup", "logout", "forgot-password", "verify-recovery-code", "recovery-session", "reset-password", "change-password"]).includes(action)) {
+  if (!(request.method === "GET" ? ["me", "recovery-status"] : ["login", "signup", "logout", "profile", "forgot-password", "verify-recovery-code", "recovery-session", "reset-password", "change-password"]).includes(action)) {
     return reply({ detail: "지원하지 않는 요청입니다." }, 404);
   }
   // Cookie authentication requires same-origin writes.

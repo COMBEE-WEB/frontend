@@ -90,15 +90,10 @@ export default function Login() {
 
       <div className={styles.links}>
         <div>
-          <span>아이디를 잊었나요?</span>
-          <Link href="/auth/find-id">아이디 찾기</Link>
-
-          <span className={styles.spacing}>비밀번호를 잊었나요?</span>
+          <span>비밀번호를 잊었나요?</span>
           <Link href="/auth/find-password">비밀번호 찾기</Link>
-        </div>
 
-        <div>
-          <span>아직 회원이 아닌가요?</span>
+          <span className={styles.spacing}>아직 회원이 아닌가요?</span>
           <Link href="/auth/signup">회원가입하기</Link>
         </div>
       </div>

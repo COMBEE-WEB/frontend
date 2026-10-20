@@ -1,3 +1,449 @@
-.shell{display:flex;min-height:100vh;background:var(--background,#f1f5f9);color:var(--foreground,#18181b)}
-.main{flex:1;min-width:0;padding:40px 28px}
-@media(max-width:700px){.main{padding:24px 12px}.main>section{padding:24px 16px}}
+.shell {
+    display: flex;
+    min-height: 100vh;
+    background: var(--background, #eef0f3);
+    color: var(--foreground, #20242c);
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 48px clamp(20px, 5vw, 96px);
+}
+
+.content {
+    width: min(100%, 1210px);
+    margin: 0 auto;
+}
+
+.pageTitle {
+    margin: 0 0 24px;
+    font-size: clamp(27px, 2.5vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.error,
+.loading {
+    margin: 0 0 20px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.error {
+    color: #b42332;
+}
+
+.profileCard,
+.summaryCard,
+.recordsCard,
+.settingsCard {
+    border: 1px solid var(--line, #dce0e6);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 4px 18px rgb(37 51 71 / 5%);
+}
+
+.profileCard {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    min-height: 172px;
+    padding: 28px 34px;
+}
+
+.avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background: #fff5e7;
+    color: var(--brand, #e99516);
+}
+
+.profileDetails {
+    min-width: 0;
+}
+
+.profileDetails h2 {
+    margin: 0 0 6px;
+    font-size: 25px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.profileDetails p {
+    margin: 4px 0;
+    color: #687386;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.profileDetails .accountId {
+    margin-top: 13px;
+    font-size: 12px;
+}
+
+.editButton {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-left: auto;
+    padding: 9px 15px;
+    border: 1px solid #e99000;
+    border-radius: 6px;
+    background: #fff;
+    color: #d57e00;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.editButton:hover {
+    background: #fff7eb;
+}
+
+.profileForm {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+    width: min(100%, 390px);
+    min-width: 0;
+    margin-left: auto;
+}
+
+.profileForm > label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.profileFormControls {
+    display: flex;
+    gap: 7px;
+    min-width: 0;
+}
+
+.profileFormControls input {
+    min-width: 0;
+    flex: 1;
+    padding: 9px 10px;
+    border: 1px solid #aeb8c7;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.profileFormControls button {
+    min-height: 40px;
+    padding: 7px 10px;
+    border: 1px solid #aeb8c7;
+    border-radius: 5px;
+    background: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.profileFormControls button[type="submit"] {
+    border-color: #e99000;
+    background: #ef9000;
+    color: #fff;
+    font-weight: 700;
+}
+
+.profileFormControls button:disabled {
+    opacity: 0.6;
+}
+
+.profileError,
+.profileMessage {
+    color: #b42332;
+    font-size: 12px;
+}
+
+.profileForm .profileError {
+    margin: 0;
+}
+
+.profileMessage {
+    margin: 12px 0 0;
+    color: #326747;
+}
+
+.summaryGrid,
+.recordsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 22px;
+}
+
+.summaryCard {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    min-width: 0;
+    min-height: 116px;
+    padding: 20px 26px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.summaryCard:hover {
+    border-color: #e8ae55;
+}
+
+.iconBubble {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: #fff4e5;
+    color: #ec8d00;
+}
+
+.summaryLabel {
+    display: block;
+    margin-bottom: 5px;
+    color: #4c5667;
+    font-size: 14px;
+}
+
+.summaryCard strong {
+    display: block;
+    font-size: 31px;
+    line-height: 1.1;
+}
+
+.recordsCard {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 310px;
+    padding: 24px;
+}
+
+.cardHeading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.cardHeading .iconBubble,
+.settingsTitle .iconBubble {
+    width: 42px;
+    height: 42px;
+}
+
+.cardHeading h2,
+.settingsTitle h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.favoriteFilter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-left: auto;
+    color: #657184;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.favoriteFilter input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.historyViewport {
+    flex: 1;
+    min-width: 0;
+    max-height: 225px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.historyViewport :global(ul) {
+    margin: 0;
+}
+
+.primaryButton {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 200px;
+    min-height: 46px;
+    margin-top: 18px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    background: #ef9000;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.primaryButton:hover {
+    background: #dc8200;
+}
+
+.settingsCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 88px;
+    margin-top: 22px;
+    padding: 18px 24px;
+}
+
+.settingsTitle,
+.settingsActions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.secondaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 9px 16px;
+    border: 1px solid #a9b2bf;
+    border-radius: 6px;
+    background: #fff;
+    color: #253042;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.secondaryButton:hover {
+    background: #f8fafc;
+}
+
+.secondaryButton:disabled {
+    opacity: 0.6;
+}
+
+@media (max-width: 1050px) {
+    .main {
+        padding: 36px 24px;
+    }
+
+    .recordsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .profileCard:has(.profileForm) {
+        flex-wrap: wrap;
+    }
+
+    .profileForm {
+        width: 100%;
+        flex-basis: 100%;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .main {
+        padding: 28px 16px;
+    }
+
+    .profileCard {
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .avatar {
+        width: 76px;
+        height: 76px;
+    }
+
+    .avatar svg {
+        max-width: 46px;
+        max-height: 46px;
+    }
+
+    .profileDetails h2 {
+        font-size: 19px;
+    }
+
+    .profileCard {
+        flex-wrap: wrap;
+    }
+
+    .editButton {
+        margin-left: 0;
+    }
+
+    .summaryGrid {
+        gap: 12px;
+    }
+
+    .summaryCard {
+        gap: 10px;
+        min-height: 100px;
+        padding: 14px;
+    }
+
+    .summaryCard .iconBubble {
+        width: 42px;
+        height: 42px;
+    }
+
+    .summaryCard strong {
+        font-size: 25px;
+    }
+
+    .recordsCard {
+        padding: 18px;
+    }
+
+    .historyViewport {
+        max-height: 340px;
+    }
+
+    .settingsCard {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .settingsActions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .cardHeading {
+        flex-wrap: wrap;
+    }
+
+    .favoriteFilter {
+        margin-left: 0;
+        width: 100%;
+    }
+}

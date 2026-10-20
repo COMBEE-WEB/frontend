@@ -28,10 +28,26 @@ export default function Sidebar({ onAccount } = {}) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('combee-sidebar-collapsed');
-      setCollapsed(saved === null ? window.matchMedia('(max-width: 700px)').matches : saved === 'true');
-    } catch { setCollapsed(window.matchMedia('(max-width: 700px)').matches); }
+    const mobile = window.matchMedia('(max-width: 700px)');
+    //-------------------
+    // 좁은 화면에서는 저장된 데스크톱 상태와 관계없이 사이드바를 접습니다.
+    //-------------------
+    function updateForViewport() {
+      if (mobile.matches) {
+        setCollapsed(true);
+        return;
+      }
+      try {
+        setCollapsed(localStorage.getItem('combee-sidebar-collapsed') === 'true');
+      } catch {
+        setCollapsed(false);
+      }
+    }
+    updateForViewport();
+    mobile.addEventListener('change', updateForViewport);
+    return () => {
+      mobile.removeEventListener('change', updateForViewport);
+    };
   }, []);
   function changeCollapsed(value) {
     setCollapsed(value);
